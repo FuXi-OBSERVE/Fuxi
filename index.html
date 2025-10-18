@@ -1,0 +1,2149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>接龙检查</title>
+    <!-- 改为本地字体图标 -->
+    <link rel="stylesheet" href="all.min.css">
+    <style>
+        :root {
+            --primary-color: #07c160;
+            --primary-dark: #05a049;
+            --danger-color: #ff4757;
+            --warning-color: #ffa502;
+            --info-color: #2f80ed;
+            --light-bg: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --text-light: #666666;
+            --border-color: #e0e0e0;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --radius: 10px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-bg);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            transform: rotate(30deg);
+        }
+        
+        h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        h1:hover {
+            transform: scale(1.05);
+        }
+        
+        .description {
+            font-size: 16px;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .quick-action {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .quick-action-btn {
+            padding: 12px 24px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .quick-action-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .quick-action-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .quick-action-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .panel {
+            flex: 1;
+            min-width: 300px;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+        }
+        
+        .panel:hover {
+            transform: translateY(-5px);
+        }
+        
+        .panel h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .panel h2 i {
+            margin-right: 8px;
+        }
+        
+        .panel h2 span {
+            font-size: 14px;
+            color: var(--text-light);
+            font-weight: normal;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 300px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            resize: vertical;
+            font-size: 15px;
+            line-height: 1.5;
+            transition: all 0.3s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(7, 193, 96, 0.2);
+        }
+        
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        button.secondary {
+            background-color: #f0f0f0;
+            color: var(--text-color);
+        }
+        
+        button.secondary:hover {
+            background-color: #e0e0e0;
+        }
+        
+        button.danger {
+            background-color: var(--danger-color);
+        }
+        
+        button.danger:hover {
+            background-color: #ff3742;
+        }
+        
+        button.warning {
+            background-color: var(--warning-color);
+        }
+        
+        button.warning:hover {
+            background-color: #e69500;
+        }
+        
+        button.info {
+            background-color: var(--info-color);
+        }
+        
+        button.info:hover {
+            background-color: #1a6fd8;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .file-label {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #f0f0f0;
+            color: var(--text-color);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .file-label:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .result-panel {
+            width: 100%;
+        }
+        
+        .result-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .result-box {
+            flex: 1;
+            min-width: 300px;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+        }
+        
+        .result-box h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .result-list {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 6px;
+        }
+        
+        .result-item {
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            background: white;
+            border-radius: 4px;
+            border-left: 4px solid var(--primary-color);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .result-item.missing {
+            border-left-color: var(--danger-color);
+            background-color: #fff5f5;
+        }
+        
+        .result-item.duplicate {
+            border-left-color: var(--warning-color);
+            background-color: #fff9e6;
+        }
+        
+        .result-item.unknown {
+            border-left-color: var(--info-color);
+            background-color: #eef5ff;
+        }
+        
+        .result-item .index {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+        
+        .result-item .count {
+            background: var(--warning-color);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+        
+        .statistics {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .stat-item {
+            padding: 15px;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-top: 5px;
+        }
+        
+        .stat-value.missing {
+            color: var(--danger-color);
+        }
+        
+        .stat-value.warning {
+            color: var(--warning-color);
+        }
+        
+        .stat-value.info {
+            color: var(--info-color);
+        }
+        
+        .visualization {
+            margin-top: 30px;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+        }
+        
+        .chart-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            margin-top: 20px;
+        }
+        
+        .chart {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: conic-gradient(
+                var(--primary-color) 0% var(--joined-percent), 
+                var(--danger-color) var(--joined-percent) 100%
+            );
+            position: relative;
+        }
+        
+        .chart-center {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        
+        .chart-percent {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .chart-label {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+        
+        .history-panel {
+            margin-top: 30px;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+        }
+        
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        
+        .history-item {
+            padding: 10px 15px;
+            border-left: 3px solid var(--primary-color);
+            background: #f9f9f9;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .history-item:hover {
+            background: #f0f0f0;
+            transform: translateX(5px);
+        }
+        
+        .history-info {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .history-date {
+            font-weight: bold;
+        }
+        
+        .history-stats {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: var(--text-light);
+            font-size: 14px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid var(--primary-color);
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .panel {
+                width: 100%;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            button, .file-label {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .statistics {
+                flex-wrap: wrap;
+            }
+            
+            .stat-item {
+                flex: 1;
+                min-width: 45%;
+            }
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 6px;
+            box-shadow: var(--shadow);
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.error {
+            background: var(--danger-color);
+        }
+        
+        .notification.warning {
+            background: var(--warning-color);
+        }
+        
+        .notification.info {
+            background: var(--info-color);
+        }
+        
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        
+        .progress {
+            height: 100%;
+            background: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .textarea-container {
+            position: relative;
+        }
+        
+        .paste-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 8px 12px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            z-index: 10;
+        }
+        
+        .paste-button:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .permission-hint {
+            margin-top: 10px;
+            font-size: 14px;
+            color: var(--text-light);
+            text-align: center;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 25px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        /* 图片模态框样式 */
+        .image-modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            width: auto;
+            height: auto;
+            padding: 0;
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .image-modal-content img {
+            max-width: 100%;
+            max-height: 90vh;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            color: var(--primary-color);
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+        
+        .modal-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        
+        .modal-item {
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            background: #f9f9f9;
+            border-radius: 4px;
+            border-left: 4px solid var(--danger-color);
+        }
+        
+        .settings-group {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 6px;
+        }
+        
+        .setting-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .setting-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .setting-item label {
+            margin-left: 8px;
+            cursor: pointer;
+        }
+        
+        .setting-hint {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-left: 24px;
+            margin-top: 4px;
+        }
+        
+        .history-detail-content {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .history-detail-section {
+            margin-bottom: 20px;
+        }
+        
+        .history-detail-section h4 {
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+        }
+        
+        .history-detail-list {
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-dragon"></i> 接龙统计</h1>
+        
+        <p class="description">智能识别 快速检出 支持模糊匹配 批量操作</p>
+            
+        <div class="permission-hint">
+            伏羲智眼&天罡鉴权  © 
+        </div>
+    </header>
+    
+    <div class="button-group">
+            <button id="quickCopyBtn"><i class="fas fa-bolt"></i> 一键复制未接龙名单[预设匹配]</button>
+            
+    <div class="container">
+        <div class="panel">
+            <h2><i class="fas fa-list-ol"></i> 接龙内容 <span>粘贴后点击网页下方检查按钮</span></h2>
+            <div class="settings-group">
+                <div class="setting-item">
+                    <input type="checkbox" id="useEnhancedMatch">
+                    <label for="useEnhancedMatch">使用增强匹配</label>
+                </div>
+                <div class="setting-hint">
+                    启用后将使用编辑距离算法进行相似度计算，70%相似度阈值，并去除数字、标点等干扰。
+                </div>
+            </div>
+            <div class="textarea-container">
+                <textarea id="relayContent" placeholder="请复制接龙内容粘贴到这里，或点击下方粘贴按钮从剪贴板粘贴"></textarea>
+            </div>
+            <div class="button-group">
+                <button id="pasteFromClipboard"><i class="fas fa-paste"></i> 粘贴</button>
+                <button id="clearRelay"><i class="fas fa-eraser"></i> 清空</button>
+                <button id="pasteRelay"><i class="fas fa-paste"></i> 粘贴示例</button>
+                <input type="file" id="importRelay" class="file-input" accept=".txt">
+                <label for="importRelay" class="file-label"><i class="fas fa-file-import"></i> 导入接龙[.txt文件]</label>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <h2><i class="fas fa-users"></i> 名单池 <span>默认加载本地名单 [可手动修改 一行一个]</span></h2>
+            <textarea id="nameList">正在加载名单...</textarea>
+            <div class="button-group">
+                <button id="clearList"><i class="fas fa-trash"></i> 清空名单</button>
+                <button id="restoreList"><i class="fas fa-redo"></i> 恢复默认名单</button>
+                <input type="file" id="importList" class="file-input" accept=".txt">
+                <label for="importList" class="file-label"><i class="fas fa-file-import"></i> 导入名单[.txt文件]</label>
+                <button id="exportList" class="secondary"><i class="fas fa-file-export"></i> 导出名单[.txt文件]</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="button-group" style="justify-content: center; margin-bottom: 20px;">
+        <button id="checkBtn" style="padding: 12px 30px; font-size: 16px;"><i class="fas fa-search"></i> 检查接龙情况</button>
+    </div>
+    
+    <div class="result-panel">
+        <div class="tabs">
+            <div class="tab active" data-tab="results">检查结果</div>
+            <div class="tab" data-tab="visualization">占比可视化</div>
+            <div class="tab" data-tab="history">历史记录</div>
+        </div>
+        
+        <div class="tab-content active" id="results-tab">
+            <div class="result-container">
+                <div class="result-box">
+                    <h3><i class="fas fa-check-circle"></i> 已接龙人员 (<span id="joinedCount">0</span>人)</h3>
+                    <div class="result-list" id="joinedList">
+                        <!-- 已接龙人员将在这里显示 -->
+                    </div>
+                </div>
+                
+                <div class="result-box">
+                    <h3><i class="fas fa-times-circle"></i> 未接龙人员 (<span id="missingCount">0</span>人)</h3>
+                    <div class="result-list" id="missingList">
+                        <!-- 未接龙人员将在这里显示 -->
+                    </div>
+                </div>
+                
+                <div class="result-box">
+                    <h3><i class="fas fa-exclamation-circle"></i> 重复接龙人员 (<span id="duplicateCount">0</span>人)</h3>
+                    <div class="result-list" id="duplicateList">
+                        <!-- 重复接龙人员将在这里显示 -->
+                    </div>
+                </div>
+                
+                <div class="result-box">
+                    <h3><i class="fas fa-question-circle"></i> 陌生人员 (<span id="unknownCount">0</span>人)</h3>
+                    <div class="result-list" id="unknownList">
+                        <!-- 陌生人员将在这里显示 -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="statistics">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalCount">0</div>
+                    <div class="stat-label">总人数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="joinedStat">0</div>
+                    <div class="stat-label">已接龙</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value missing" id="missingStat">0</div>
+                    <div class="stat-label">未接龙</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value warning" id="duplicateStat">0</div>
+                    <div class="stat-label">重复接龙</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value info" id="unknownStat">0</div>
+                    <div class="stat-label">陌生人员</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="percentage">0%</div>
+                    <div class="stat-label">接龙率</div>
+                </div>
+            </div>
+            
+            <div class="button-group" style="justify-content: center; margin-top: 20px;">
+                <button id="copyMissing" class="danger"><i class="fas fa-copy"></i> 复制未接龙名单</button>
+                <button id="copyJoined" class="secondary"><i class="fas fa-copy"></i> 复制已接龙名单</button>
+                <button id="copyDuplicate" class="warning"><i class="fas fa-copy"></i> 复制重复名单</button>
+                <button id="copyUnknown" class="info"><i class="fas fa-copy"></i> 复制陌生名单</button>
+                <button id="exportResults" class="secondary"><i class="fas fa-file-export"></i> 导出检查结果[.txt文件]</button>
+                <button id="saveHistory" class="secondary"><i class="fas fa-save"></i> 保存记录</button>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="visualization-tab">
+            <div class="visualization">
+                <h3><i class="fas fa-chart-pie"></i> 情况统计</h3>
+                <div class="chart-container">
+                    <div class="chart">
+                        <div class="chart-center">
+                            <div class="chart-percent" id="chartPercent">0%</div>
+                            <div class="chart-label">接龙率</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress" id="progressBar"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="history-tab">
+            <div class="history-panel">
+                <h3><i class="fas fa-history"></i> 历史记录</h3>
+                <div class="button-group">
+                    <button id="clearHistory" class="danger"><i class="fas fa-trash"></i> 清空历史</button>
+                </div>
+                <div class="history-list" id="historyList">
+                    <!-- 历史记录将在这里显示 -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>伏羲智眼 &copy;</p>
+    </footer>
+
+    <!-- 未接龙名单弹窗 -->
+    <div class="modal" id="missingModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-times-circle"></i> 未接龙人员名单</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-list" id="modalMissingList">
+                <!-- 弹窗中的未接龙人员将在这里显示 -->
+            </div>
+            <div class="button-group" style="margin-top: 20px;">
+                <button id="modalCopyMissing" class="danger"><i class="fas fa-copy"></i> 复制名单</button>
+                <button class="close-modal secondary">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 历史记录详情弹窗 -->
+    <div class="modal" id="historyDetailModal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-history"></i> 历史记录详情</h3>
+                
+            </div>
+            <div class="history-detail-content" id="historyDetailContent">
+                <!-- 历史记录详情将在这里显示 -->
+            </div>
+            <div class="button-group" style="margin-top: 20px;">
+                <button class="close-modal secondary">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 图片弹窗 -->
+    <div class="modal" id="imageModal">
+        <div class="modal-content image-modal-content">
+            <img id="modalImage" src="" alt="图片">
+        </div>
+    </div>
+
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notificationText">操作成功</span>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM加载完成');
+            
+            // 获取元素
+            const relayContent = document.getElementById('relayContent');
+            const nameList = document.getElementById('nameList');
+            const checkBtn = document.getElementById('checkBtn');
+            const joinedList = document.getElementById('joinedList');
+            const missingList = document.getElementById('missingList');
+            const duplicateList = document.getElementById('duplicateList');
+            const unknownList = document.getElementById('unknownList');
+            const totalCount = document.getElementById('totalCount');
+            const joinedCount = document.getElementById('joinedCount');
+            const missingCount = document.getElementById('missingCount');
+            const duplicateCount = document.getElementById('duplicateCount');
+            const unknownCount = document.getElementById('unknownCount');
+            const joinedStat = document.getElementById('joinedStat');
+            const missingStat = document.getElementById('missingStat');
+            const duplicateStat = document.getElementById('duplicateStat');
+            const unknownStat = document.getElementById('unknownStat');
+            const percentage = document.getElementById('percentage');
+            const chartPercent = document.getElementById('chartPercent');
+            const progressBar = document.getElementById('progressBar');
+            const historyList = document.getElementById('historyList');
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            const quickCopyBtn = document.getElementById('quickCopyBtn');
+            const missingModal = document.getElementById('missingModal');
+            const modalMissingList = document.getElementById('modalMissingList');
+            const modalCopyMissing = document.getElementById('modalCopyMissing');
+            const closeModalButtons = document.querySelectorAll('.close-modal');
+            const imageModal = document.getElementById('imageModal');
+            const modalImage = document.getElementById('modalImage');
+            const useEnhancedMatch = document.getElementById('useEnhancedMatch');
+            const historyDetailModal = document.getElementById('historyDetailModal');
+            const historyDetailContent = document.getElementById('historyDetailContent');
+            
+            // 按钮元素
+            const clearRelay = document.getElementById('clearRelay');
+            const pasteRelay = document.getElementById('pasteRelay');
+            const pasteFromClipboard = document.getElementById('pasteFromClipboard');
+            const clearList = document.getElementById('clearList');
+            const restoreList = document.getElementById('restoreList');
+            const copyMissing = document.getElementById('copyMissing');
+            const copyJoined = document.getElementById('copyJoined');
+            const copyDuplicate = document.getElementById('copyDuplicate');
+            const copyUnknown = document.getElementById('copyUnknown');
+            const exportList = document.getElementById('exportList');
+            const exportResults = document.getElementById('exportResults');
+            const saveHistory = document.getElementById('saveHistory');
+            const clearHistory = document.getElementById('clearHistory');
+            const importRelay = document.getElementById('importRelay');
+            const importList = document.getElementById('importList');
+            
+            // 标签页元素
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            // 默认名单 - 从本地文件加载
+            let defaultNameList = "";
+            
+            // 示例接龙内容
+            const exampleRelay = `#接龙
+安全到家
+0.伏羲智眼
+12345. 孙浩宇
+2. 田佳乐@gmail.com
+3. 刘国梁
+4. 李政霖？*”“！@”
+5. 张启航ABCD
+6. 孙亚惠你好
+7. 梁丽媛在教室第二排
+8. 刘翰荣是学习委员
+9. 赵芷萱安全到家
+10. 邵铄婷 1234  12 34
+11. 王胤淇12341234
+12. 张文清
+13. 申浩冉
+14. 于令坤
+15. 赵紫妍
+16. 解得海
+17. 刘青钺
+18. 赵文杰
+19. 冯成志
+20. 马慧萍
+21. 李迎菲
+22. 刘泽凯
+23. 路艳阳
+24. 张佳欣
+25. 张鼎皓
+26. 张一敏
+27. 孟凡超
+28. 张艺馨
+29. 陈宇彤
+30. 刘欣仪
+31. 赵芳菲
+32. 刘钰宝
+33. 王雨晴
+34. 宋玉婷
+35. 张奥琪
+36. 辛浩然
+37. 冯玺羽
+38. 谭新凝
+39. 张文娜
+40. 何静怡
+41. 贾俊曦
+42. 韩德森
+43. 袁晓惠`;
+            
+            // 历史记录
+            let history = JSON.parse(localStorage.getItem('relayHistory')) || [];
+            
+            // 当前检查结果
+            let currentResult = null;
+            
+            // 防抖函数
+            function debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
+            
+            // 统一的错误处理函数
+            function handleError(error, context) {
+                console.error(`Error in ${context}:`, error);
+                let message = '操作失败，请重试';
+                
+                if (error.name === 'NotAllowedError') {
+                    message = '请授权剪贴板访问权限';
+                } else if (error.name === 'NotFoundError') {
+                    message = '未找到相关资源';
+                } else if (error.name === 'ReadError') {
+                    message = '读取剪贴板失败';
+                } else if (error.name === 'WriteError') {
+                    message = '写入剪贴板失败';
+                } else if (error.name === 'NetworkError') {
+                    message = '网络错误，请检查网络连接';
+                } else if (error.message && error.message.includes('fetch')) {
+                    message = '文件加载失败，请检查文件路径';
+                }
+                
+                showNotification(message, 'error');
+                return message;
+            }
+            
+            // 文本清洗函数
+            function cleanText(text) {
+                return text.replace(/[0-9\.\?\!\@\#\$\%\^\&\*\(\)\-\+\=\[\]\{\}\|\:\;\"\'\<\>\,\.\/\\]/g, '');
+            }
+            
+            // 计算编辑距离
+            function levenshteinDistance(a, b) {
+                const matrix = [];
+                for (let i = 0; i <= b.length; i++) {
+                    matrix[i] = [i];
+                }
+                for (let j = 0; j <= a.length; j++) {
+                    matrix[0][j] = j;
+                }
+                for (let i = 1; i <= b.length; i++) {
+                    for (let j = 1; j <= a.length; j++) {
+                        if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                            matrix[i][j] = matrix[i - 1][j - 1];
+                        } else {
+                            matrix[i][j] = Math.min(
+                                matrix[i - 1][j - 1] + 1, // 替换
+                                matrix[i][j - 1] + 1, // 插入
+                                matrix[i - 1][j] + 1 // 删除
+                            );
+                        }
+                    }
+                }
+                return matrix[b.length][a.length];
+            }
+            
+            // 计算相似度
+            function similarity(a, b) {
+                const distance = levenshteinDistance(a, b);
+                const maxLength = Math.max(a.length, b.length);
+                return (1 - distance / maxLength) * 100;
+            }
+            
+            // 增强匹配算法
+            function enhancedFuzzyMatch(text, name) {
+                // 文本清洗
+                const cleanTextStr = cleanText(text);
+                
+                // 如果清洗后的文本包含完整姓名，直接返回true
+                if (cleanTextStr.includes(name)) {
+                    return true;
+                }
+                
+                // 使用编辑距离计算相似度
+                const sim = similarity(cleanTextStr, name);
+                return sim >= 70; // 70%相似度阈值
+            }
+            
+            // 基础匹配算法
+            function basicFuzzyMatch(text, name) {
+                return text.includes(name);
+            }
+            
+            // 从本地文件加载名单
+            async function loadNameListFromFile() {
+                try {
+                    console.log('尝试从本地文件加载名单...');
+                    const response = await fetch('name.txt');
+                    if (response.ok) {
+                        defaultNameList = await response.text();
+                        console.log('成功加载本地名单文件');
+                        nameList.value = defaultNameList;
+                    } else {
+                        throw new Error('无法加载名单文件');
+                    }
+                } catch (error) {
+                    console.error('加载本地名单失败:', error);
+                    // 使用内置的默认名单作为备选
+                    defaultNameList = `刘泽凯
+张启航
+王胤淇
+李赵晟
+孟凡超
+袁晓惠
+刘青钺
+王德锰
+于令坤
+冯成志
+张奥琪
+王志诚
+张鼎皓
+赵芳菲
+刘钰宝
+韩德森
+解得海
+田佳乐
+李政霖
+孙浩宇
+赵紫妍
+路艳阳
+刘静涵
+贾俊曦
+王义菡
+冯玺羽
+王雨晴
+刘欣仪
+马慧萍
+张佳欣
+张文清
+赵芷萱
+申浩冉
+谭新凝
+孙亚惠
+刘翰荣
+宋玉婷
+梁丽媛
+陈宇彤
+辛浩然
+邵铄婷
+张艺馨
+赵文杰
+刘国梁
+李迎菲
+张一敏
+何静怡
+张文娜`;
+                    nameList.value = defaultNameList;
+                    console.log('使用内置默认名单');
+                }
+            }
+            
+            // 初始化
+            async function init() {
+                console.log('初始化应用');
+                
+                // 首先加载本地名单
+                await loadNameListFromFile();
+                
+                loadHistory();
+                updateChart(0);
+                
+                // 绑定标题点击事件 - 显示图片
+                const headerTitle = document.querySelector('header h1');
+                if (headerTitle) {
+                    headerTitle.addEventListener('click', function() {
+                        showImageModal();
+                    });
+                }
+                
+                // 绑定一键复制按钮事件
+                if (quickCopyBtn) {
+                    console.log('找到一键复制按钮');
+                    quickCopyBtn.addEventListener('click', handleQuickCopy);
+                } else {
+                    console.error('未找到一键复制按钮');
+                }
+                
+                // 绑定弹窗关闭按钮事件
+                closeModalButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        missingModal.style.display = 'none';
+                        historyDetailModal.style.display = 'none';
+                    });
+                });
+                
+                // 绑定弹窗复制按钮事件
+                modalCopyMissing.addEventListener('click', function() {
+                    const missingNames = Array.from(missingList.querySelectorAll('.result-item'))
+                        .map(item => item.querySelector('span').textContent)
+                        .join('\n');
+                    
+                    if (!missingNames) {
+                        showNotification('没有未接龙人员', 'error');
+                        return;
+                    }
+                    
+                    copyToClipboard(missingNames, '未接龙名单已复制到剪贴板', 'modalCopyMissing');
+                    missingModal.style.display = 'none';
+                });
+                
+                // 点击弹窗外部关闭弹窗
+                missingModal.addEventListener('click', function(e) {
+                    if (e.target === missingModal) {
+                        missingModal.style.display = 'none';
+                    }
+                });
+
+                // 点击历史详情弹窗外部关闭弹窗
+                historyDetailModal.addEventListener('click', function(e) {
+                    if (e.target === historyDetailModal) {
+                        historyDetailModal.style.display = 'none';
+                    }
+                });
+
+                // 点击图片弹窗外部关闭弹窗
+                imageModal.addEventListener('click', function(e) {
+                    if (e.target === imageModal) {
+                        imageModal.style.display = 'none';
+                    }
+                });
+            }
+            
+            // 显示图片弹窗
+            function showImageModal() {
+                try {
+                    // 设置图片源为1.jpg
+                    modalImage.src = '1.jpg';
+                    // 显示弹窗
+                    imageModal.style.display = 'flex';
+                    console.log('显示图片弹窗');
+                } catch (error) {
+                    console.error('加载图片失败:', error);
+                    handleError(error, 'showImageModal');
+                }
+            }
+            
+            // 显示通知
+            function showNotification(message, type = 'success') {
+                console.log('显示通知:', message, type);
+                notificationText.textContent = message;
+                notification.className = 'notification';
+                
+                if (type === 'error') {
+                    notification.classList.add('error');
+                } else if (type === 'warning') {
+                    notification.classList.add('warning');
+                } else if (type === 'info') {
+                    notification.classList.add('info');
+                }
+                
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+            
+            // 复制到剪贴板 - 复用函数
+            function copyToClipboard(text, successMessage, errorContext) {
+                navigator.clipboard.writeText(text)
+                    .then(() => showNotification(successMessage))
+                    .catch(err => {
+                        console.error('复制失败: ', err);
+                        handleError(err, errorContext);
+                    });
+            }
+            
+            // 处理一键复制功能
+            async function handleQuickCopy() {
+                console.log('一键复制按钮被点击');
+                
+                try {
+                    // 显示加载状态
+                    quickCopyBtn.innerHTML = '<div class="loader"></div> 处理中...';
+                    quickCopyBtn.disabled = true;
+                    
+                    // 获取名单池
+                    const nameText = nameList.value;
+                    
+                    if (!nameText.trim()) {
+                        showNotification('名单池为空，请添加名单', 'error');
+                        quickCopyBtn.innerHTML = '<i class="fas fa-bolt"></i> 一键复制未接龙名单';
+                        quickCopyBtn.disabled = false;
+                        return;
+                    }
+                    
+                    // 读取剪贴板内容
+                    let clipboardText;
+                    try {
+                        console.log('尝试读取剪贴板');
+                        clipboardText = await navigator.clipboard.readText();
+                        console.log('剪贴板内容:', clipboardText);
+                    } catch (clipboardError) {
+                        console.error('剪贴板读取失败: ', clipboardError);
+                        handleError(clipboardError, 'handleQuickCopy');
+                        quickCopyBtn.innerHTML = '<i class="fas fa-bolt"></i> 一键复制未接龙名单';
+                        quickCopyBtn.disabled = false;
+                        return;
+                    }
+                    
+                    if (!clipboardText.trim()) {
+                        showNotification('剪贴板为空，请复制接龙内容后再试', 'error');
+                        quickCopyBtn.innerHTML = '<i class="fas fa-bolt"></i> 一键复制未接龙名单';
+                        quickCopyBtn.disabled = false;
+                        return;
+                    }
+                    
+                    // 处理名单
+                    const names = nameText.split('\n')
+                        .map(name => name.trim())
+                        .filter(name => name.length > 0);
+                    
+                    // 处理接龙内容
+                    const relayLines = clipboardText.split('\n')
+                        .map(line => line.trim())
+                        .filter(line => line.length > 0);
+                    
+                    // 执行检查
+                    const result = performCheck(names, relayLines);
+                    
+                    // 更新界面显示
+                    updateResults(result.joined, result.missing, result.duplicate, result.unknown);
+                    
+                    // 更新弹窗内容
+                    updateModalContent(result.missing);
+                    
+                    // 将未接龙名单写入剪贴板
+                    if (result.missing.length > 0) {
+                        try {
+                            console.log('准备写入剪贴板:', result.missing);
+                            await navigator.clipboard.writeText(result.missing.join('\n'));
+                            showNotification(`已复制 ${result.missing.length} 个未接龙人员到剪贴板`);
+                            
+                            // 显示弹窗
+                            missingModal.style.display = 'flex';
+                        } catch (writeError) {
+                            console.error('剪贴板写入失败: ', writeError);
+                            handleError(writeError, 'handleQuickCopy');
+                        }
+                    } else {
+                        showNotification('所有人员均已接龙，无需复制', 'info');
+                    }
+                    
+                    // 恢复按钮状态
+                    quickCopyBtn.innerHTML = '<i class="fas fa-bolt"></i> 一键复制未接龙名单';
+                    quickCopyBtn.disabled = false;
+                    
+                } catch (err) {
+                    console.error('一键复制失败: ', err);
+                    handleError(err, 'handleQuickCopy');
+                    
+                    // 恢复按钮状态
+                    quickCopyBtn.innerHTML = '<i class="fas fa-bolt"></i> 一键复制未接龙名单';
+                    quickCopyBtn.disabled = false;
+                }
+            }
+            
+            // 执行接龙检查的核心函数
+            function performCheck(names, relayLines) {
+                const joined = []; // 已接龙人员
+                const missing = []; // 未接龙人员
+                const duplicate = []; // 重复接龙人员 {name: string, count: number}
+                const unknown = []; // 陌生人员
+                
+                // 记录每个人名的匹配次数
+                const matchCount = {};
+                names.forEach(name => {
+                    matchCount[name] = 0;
+                });
+                
+                // 选择匹配算法
+                const matchFunction = useEnhancedMatch.checked ? enhancedFuzzyMatch : basicFuzzyMatch;
+                
+                // 检查名单中的人员
+                names.forEach(name => {
+                    let found = false;
+                    
+                    for (const line of relayLines) {
+                        const matched = matchFunction(line, name);
+                        
+                        if (matched) {
+                            found = true;
+                            matchCount[name]++;
+                        }
+                    }
+                    
+                    if (found) {
+                        joined.push(name);
+                        // 如果匹配次数大于1，则加入重复列表
+                        if (matchCount[name] > 1) {
+                            duplicate.push({
+                                name: name,
+                                count: matchCount[name]
+                            });
+                        }
+                    } else {
+                        missing.push(name);
+                    }
+                });
+                
+                // 检测陌生人员 - 无论是否启用增强匹配都进行检查
+                const nameSet = new Set(names);
+                
+                relayLines.forEach(line => {
+                    // 跳过明显不是人名的行
+                    if (line.length < 2 || 
+                        line.includes('接龙') || 
+                        line.includes('安全') ||
+                        /^\d+$/.test(line.trim())) {
+                        return;
+                    }
+                    
+                    let isKnown = false;
+                    
+                    // 检查这一行是否与任何已知姓名匹配
+                    for (const name of names) {
+                        if (useEnhancedMatch.checked) {
+                            // 增强匹配模式下使用清洗后的文本和相似度计算
+                            const cleanLine = cleanText(line);
+                            if (cleanLine.includes(name) || similarity(cleanLine, name) >= 70) {
+                                isKnown = true;
+                                break;
+                            }
+                        } else {
+                            // 基础匹配模式下使用简单包含检查
+                            if (line.includes(name)) {
+                                isKnown = true;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (!isKnown) {
+                        // 提取可能的人名
+                        let possibleName = line.trim();
+                        
+                        // 如果是增强匹配模式，使用清洗后的文本
+                        if (useEnhancedMatch.checked) {
+                            possibleName = cleanText(line).trim();
+                        }
+                        
+                        // 取前4个字符作为可能的人名
+                        possibleName = possibleName.substring(0, Math.min(4, possibleName.length));
+                        
+                        if (possibleName.length >= 2 && !unknown.includes(possibleName)) {
+                            unknown.push(possibleName);
+                        }
+                    }
+                });
+                
+                // 保存当前结果
+                currentResult = {
+                    joined,
+                    missing,
+                    duplicate,
+                    unknown,
+                    names,
+                    relayLines,
+                    timestamp: new Date().toLocaleString()
+                };
+                
+                return currentResult;
+            }
+            
+            // 更新弹窗内容
+            function updateModalContent(missing) {
+                modalMissingList.innerHTML = '';
+                
+                if (missing.length === 0) {
+                    modalMissingList.innerHTML = '<div class="modal-item">所有人员均已接龙</div>';
+                    return;
+                }
+                
+                missing.forEach((name, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'modal-item';
+                    item.innerHTML = `
+                        <span>${index + 1}. ${name}</span>
+                    `;
+                    modalMissingList.appendChild(item);
+                });
+            }
+            
+            // 显示历史记录详情
+            function showHistoryDetail(record) {
+                historyDetailContent.innerHTML = `
+                    <div class="history-detail-section">
+                        <h4>基本信息</h4>
+                        <p><strong>检查时间:</strong> ${record.date}</p>
+                        <p><strong>总人数:</strong> ${record.total}</p>
+                        <p><strong>已接龙:</strong> ${record.joined}</p>
+                        <p><strong>未接龙:</strong> ${record.missing}</p>
+                        <p><strong>重复接龙:</strong> ${record.duplicate}</p>
+                        <p><strong>陌生人员:</strong> ${record.unknown}</p>
+                        <p><strong>接龙率:</strong> ${record.percent}</p>
+                    </div>
+                    
+                    <div class="history-detail-section">
+                        <h4>已接龙人员 (${record.joined}人)</h4>
+                        <div class="history-detail-list">
+                            ${record.joinedNames && record.joinedNames.length > 0 ? 
+                                record.joinedNames.map(name => `<div class="result-item">${name}</div>`).join('') : 
+                                '<div class="result-item">无记录</div>'}
+                        </div>
+                    </div>
+                    
+                    <div class="history-detail-section">
+                        <h4>未接龙人员 (${record.missing}人)</h4>
+                        <div class="history-detail-list">
+                            ${record.missingNames && record.missingNames.length > 0 ? 
+                                record.missingNames.map(name => `<div class="result-item missing">${name}</div>`).join('') : 
+                                '<div class="result-item">无记录</div>'}
+                        </div>
+                    </div>
+                    
+                    ${record.duplicate > 0 ? `
+                    <div class="history-detail-section">
+                        <h4>重复接龙人员 (${record.duplicate}人)</h4>
+                        <div class="history-detail-list">
+                            ${record.duplicateNames && record.duplicateNames.length > 0 ? 
+                                record.duplicateNames.map(dup => `<div class="result-item duplicate">${dup.name} <span class="count">重复${dup.count}次</span></div>`).join('') : 
+                                '<div class="result-item">无记录</div>'}
+                        </div>
+                    </div>
+                    ` : ''}
+                    
+                    ${record.unknown > 0 ? `
+                    <div class="history-detail-section">
+                        <h4>陌生人员 (${record.unknown}人)</h4>
+                        <div class="history-detail-list">
+                            ${record.unknownNames && record.unknownNames.length > 0 ? 
+                                record.unknownNames.map(name => `<div class="result-item unknown">${name}</div>`).join('') : 
+                                '<div class="result-item">无记录</div>'}
+                        </div>
+                    </div>
+                    ` : ''}
+                `;
+                
+                historyDetailModal.style.display = 'flex';
+            }
+            
+            // 标签页切换
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    
+                    // 移除所有active类
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(tc => tc.classList.remove('active'));
+                    
+                    // 添加active类到当前标签
+                    tab.classList.add('active');
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                });
+            });
+            
+            // 从剪贴板粘贴内容
+            pasteFromClipboard.addEventListener('click', async function() {
+                try {
+                    const text = await navigator.clipboard.readText();
+                    relayContent.value = text;
+                    showNotification('已从剪贴板粘贴接龙内容');
+                } catch (err) {
+                    console.error('无法读取剪贴板内容: ', err);
+                    handleError(err, 'pasteFromClipboard');
+                }
+            });
+            
+            // 清空接龙内容
+            clearRelay.addEventListener('click', function() {
+                relayContent.value = '';
+                showNotification('接龙内容已清空');
+            });
+            
+            // 粘贴示例接龙
+            pasteRelay.addEventListener('click', function() {
+                relayContent.value = exampleRelay;
+                showNotification('示例接龙内容已加载');
+            });
+            
+            // 清空名单
+            clearList.addEventListener('click', function() {
+                nameList.value = '';
+                showNotification('名单已清空');
+            });
+            
+            // 恢复默认名单
+            restoreList.addEventListener('click', function() {
+                nameList.value = defaultNameList;
+                showNotification('默认名单已恢复');
+            });
+            
+            // 导入接龙内容
+            importRelay.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    relayContent.value = e.target.result;
+                    showNotification('接龙内容已导入');
+                };
+                reader.onerror = function(error) {
+                    handleError(error, 'importRelay');
+                };
+                reader.readAsText(file);
+                
+                // 重置文件输入，允许再次选择同一文件
+                e.target.value = '';
+            });
+            
+            // 导入名单
+            importList.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    nameList.value = e.target.result;
+                    showNotification('名单已导入');
+                };
+                reader.onerror = function(error) {
+                    handleError(error, 'importList');
+                };
+                reader.readAsText(file);
+                
+                // 重置文件输入
+                e.target.value = '';
+            });
+            
+            // 导出名单 - 修复编码问题
+            exportList.addEventListener('click', function() {
+                const content = nameList.value;
+                // 添加UTF-8 BOM以解决中文乱码问题
+                const BOM = '\uFEFF';
+                const blob = new Blob([BOM + content], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = '名单导出.txt';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showNotification('名单已导出');
+            });
+            
+            // 防抖的检查函数
+            const debouncedCheck = debounce(function() {
+                const relayText = relayContent.value;
+                const nameText = nameList.value;
+                
+                if (!relayText.trim()) {
+                    showNotification('请输入接龙内容', 'error');
+                    return;
+                }
+                
+                if (!nameText.trim()) {
+                    showNotification('请输入名单', 'error');
+                    return;
+                }
+                
+                // 显示加载状态
+                const originalText = checkBtn.innerHTML;
+                checkBtn.innerHTML = '<div class="loader"></div> 检查中...';
+                checkBtn.disabled = true;
+                
+                // 使用setTimeout避免阻塞UI
+                setTimeout(() => {
+                    // 处理名单
+                    const names = nameText.split('\n')
+                        .map(name => name.trim())
+                        .filter(name => name.length > 0);
+                    
+                    // 处理接龙内容
+                    const relayLines = relayText.split('\n')
+                        .map(line => line.trim())
+                        .filter(line => line.length > 0);
+                    
+                    // 执行检查
+                    const result = performCheck(names, relayLines);
+                    
+                    // 更新UI
+                    updateResults(result.joined, result.missing, result.duplicate, result.unknown);
+                    
+                    // 恢复按钮状态
+                    checkBtn.innerHTML = originalText;
+                    checkBtn.disabled = false;
+                    
+                    showNotification('接龙检查完成');
+                    
+                    // 如果有陌生人员，显示警告
+                    if (result.unknown.length > 0) {
+                        showNotification(`发现 ${result.unknown.length} 个陌生人员，请在结果中查看`, 'warning');
+                    }
+                    
+                    // 如果有重复接龙，显示警告
+                    if (result.duplicate.length > 0) {
+                        showNotification(`发现 ${result.duplicate.length} 个重复接龙人员`, 'warning');
+                    }
+                }, 100);
+            }, 300);
+            
+            // 检查接龙情况
+            checkBtn.addEventListener('click', debouncedCheck);
+            
+            // 更新结果显示
+            function updateResults(joined, missing, duplicate, unknown) {
+                // 清空现有结果
+                joinedList.innerHTML = '';
+                missingList.innerHTML = '';
+                duplicateList.innerHTML = '';
+                unknownList.innerHTML = '';
+                
+                // 添加已接龙人员
+                joined.forEach((name, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'result-item';
+                    item.innerHTML = `
+                        <span>${name}</span>
+                        <span class="index">${index + 1}</span>
+                    `;
+                    joinedList.appendChild(item);
+                });
+                
+                // 添加未接龙人员
+                missing.forEach((name, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'result-item missing';
+                    item.innerHTML = `
+                        <span>${name}</span>
+                        <span class="index">${index + 1}</span>
+                    `;
+                    missingList.appendChild(item);
+                });
+                
+                // 添加重复接龙人员
+                duplicate.forEach((dup, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'result-item duplicate';
+                    item.innerHTML = `
+                        <span>${dup.name} <span class="count">重复${dup.count}次</span></span>
+                        <span class="index">${index + 1}</span>
+                    `;
+                    duplicateList.appendChild(item);
+                });
+                
+                // 添加陌生人员
+                unknown.forEach((name, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'result-item unknown';
+                    item.innerHTML = `
+                        <span>${name}</span>
+                        <span class="index">${index + 1}</span>
+                    `;
+                    unknownList.appendChild(item);
+                });
+                
+                // 更新统计数据
+                const total = joined.length + missing.length;
+                const joinedPercentage = total > 0 ? Math.round((joined.length / total) * 100) : 0;
+                
+                totalCount.textContent = total;
+                joinedCount.textContent = joined.length;
+                missingCount.textContent = missing.length;
+                duplicateCount.textContent = duplicate.length;
+                unknownCount.textContent = unknown.length;
+                joinedStat.textContent = joined.length;
+                missingStat.textContent = missing.length;
+                duplicateStat.textContent = duplicate.length;
+                unknownStat.textContent = unknown.length;
+                percentage.textContent = `${joinedPercentage}%`;
+                
+                // 更新图表
+                updateChart(joinedPercentage);
+            }
+            
+            // 更新图表
+            function updateChart(percentage) {
+                chartPercent.textContent = `${percentage}%`;
+                progressBar.style.width = `${percentage}%`;
+                
+                // 更新饼图
+                const chart = document.querySelector('.chart');
+                chart.style.background = `conic-gradient(
+                    var(--primary-color) 0% ${percentage}%, 
+                    var(--danger-color) ${percentage}% 100%
+                )`;
+            }
+            
+            // 复制未接龙名单
+            copyMissing.addEventListener('click', function() {
+                const missingNames = Array.from(missingList.querySelectorAll('.result-item'))
+                    .map(item => {
+                        const span = item.querySelector('span');
+                        return span.childNodes[0].textContent.trim();
+                    })
+                    .join('\n');
+                
+                if (!missingNames) {
+                    showNotification('没有未接龙人员', 'error');
+                    return;
+                }
+                
+                copyToClipboard(missingNames, '未接龙名单已复制到剪贴板', 'copyMissing');
+            });
+            
+            // 复制已接龙名单
+            copyJoined.addEventListener('click', function() {
+                const joinedNames = Array.from(joinedList.querySelectorAll('.result-item'))
+                    .map(item => {
+                        const span = item.querySelector('span');
+                        return span.childNodes[0].textContent.trim();
+                    })
+                    .join('\n');
+                
+                if (!joinedNames) {
+                    showNotification('没有已接龙人员', 'error');
+                    return;
+                }
+                
+                copyToClipboard(joinedNames, '已接龙名单已复制到剪贴板', 'copyJoined');
+            });
+            
+            // 复制重复接龙名单
+            copyDuplicate.addEventListener('click', function() {
+                const duplicateNames = Array.from(duplicateList.querySelectorAll('.result-item'))
+                    .map(item => {
+                        const span = item.querySelector('span');
+                        return span.childNodes[0].textContent.trim();
+                    })
+                    .join('\n');
+                
+                if (!duplicateNames) {
+                    showNotification('没有重复接龙人员', 'error');
+                    return;
+                }
+                
+                copyToClipboard(duplicateNames, '重复接龙名单已复制到剪贴板', 'copyDuplicate');
+            });
+            
+            // 复制陌生人员名单
+            copyUnknown.addEventListener('click', function() {
+                const unknownNames = Array.from(unknownList.querySelectorAll('.result-item'))
+                    .map(item => {
+                        const span = item.querySelector('span');
+                        return span.childNodes[0].textContent.trim();
+                    })
+                    .join('\n');
+                
+                if (!unknownNames) {
+                    showNotification('没有陌生人员', 'error');
+                    return;
+                }
+                
+                copyToClipboard(unknownNames, '陌生人员名单已复制到剪贴板', 'copyUnknown');
+            });
+            
+            // 导出检查结果 - 修复编码问题
+            exportResults.addEventListener('click', function() {
+                const joinedNames = Array.from(joinedList.querySelectorAll('.result-item'))
+                    .map(item => {
+                        const span = item.querySelector('span');
+                        return span.childNodes[0].textContent.trim();
+                    })
+                    .join('\n');
+                
+                const missingNames = Array.from(missingList.querySelectorAll('.result-item'))
+                    .map(item => {
+                        const span = item.querySelector('span');
+                        return span.childNodes[0].textContent.trim();
+                    })
+                    .join('\n');
+                
+                const duplicateNames = Array.from(duplicateList.querySelectorAll('.result-item'))
+                    .map(item => {
+                        const span = item.querySelector('span');
+                        return span.childNodes[0].textContent.trim();
+                    })
+                    .join('\n');
+                
+                const unknownNames = Array.from(unknownList.querySelectorAll('.result-item'))
+                    .map(item => {
+                        const span = item.querySelector('span');
+                        return span.childNodes[0].textContent.trim();
+                    })
+                    .join('\n');
+                
+                const total = parseInt(totalCount.textContent);
+                const joined = parseInt(joinedStat.textContent);
+                const missing = parseInt(missingStat.textContent);
+                const duplicateCount = parseInt(duplicateStat.textContent);
+                const unknownCount = parseInt(unknownStat.textContent);
+                const percent = percentage.textContent;
+                
+                const resultText = `接龙检查结果
+统计时间: ${new Date().toLocaleString()}
+总人数: ${total}
+已接龙数: ${joined}
+未接龙数: ${missing}
+重复接龙数: ${duplicateCount}
+陌生人员数: ${unknownCount}
+接龙率: ${percent}
+
+===== 已接龙人员 =====
+${joinedNames || "无"}
+
+===== 未接龙人员 =====
+${missingNames || "无"}
+
+===== 重复接龙人员 =====
+${duplicateNames || "无"}
+
+===== 陌生人员 =====
+${unknownNames || "无"}
+`;
+                // 添加UTF-8 BOM以解决中文乱码问题
+                const BOM = '\uFEFF';
+                const blob = new Blob([BOM + resultText], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `接龙检查结果_${new Date().toISOString().slice(0,10)}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showNotification('检查结果已导出');
+            });
+            
+            // 保存历史记录
+            saveHistory.addEventListener('click', function() {
+                const total = parseInt(totalCount.textContent);
+                const joined = parseInt(joinedStat.textContent);
+                const missing = parseInt(missingStat.textContent);
+                const duplicate = parseInt(duplicateStat.textContent);
+                const unknown = parseInt(unknownStat.textContent);
+                const percent = percentage.textContent;
+                
+                if (total === 0) {
+                    showNotification('没有检查结果可保存', 'error');
+                    return;
+                }
+                
+                // 获取当前结果数据
+                const joinedNames = Array.from(joinedList.querySelectorAll('.result-item'))
+                    .map(item => {
+                        const span = item.querySelector('span');
+                        return span.childNodes[0].textContent.trim();
+                    });
+                
+                const missingNames = Array.from(missingList.querySelectorAll('.result-item'))
+                    .map(item => {
+                        const span = item.querySelector('span');
+                        return span.childNodes[0].textContent.trim();
+                    });
+                
+                const duplicateNames = Array.from(duplicateList.querySelectorAll('.result-item'))
+                    .map(item => {
+                        const span = item.querySelector('span');
+                        const name = span.childNodes[0].textContent.trim();
+                        const count = item.querySelector('.count').textContent.match(/\d+/)[0];
+                        return { name, count: parseInt(count) };
+                    });
+                
+                const unknownNames = Array.from(unknownList.querySelectorAll('.result-item'))
+                    .map(item => {
+                        const span = item.querySelector('span');
+                        return span.childNodes[0].textContent.trim();
+                    });
+                
+                const record = {
+                    id: Date.now(),
+                    date: new Date().toLocaleString(),
+                    total: total,
+                    joined: joined,
+                    missing: missing,
+                    duplicate: duplicate,
+                    unknown: unknown,
+                    percent: percent,
+                    joinedNames: joinedNames,
+                    missingNames: missingNames,
+                    duplicateNames: duplicateNames,
+                    unknownNames: unknownNames
+                };
+                
+                history.unshift(record);
+                
+                // 只保留最近10条记录
+                if (history.length > 10) {
+                    history = history.slice(0, 10);
+                }
+                
+                localStorage.setItem('relayHistory', JSON.stringify(history));
+                loadHistory();
+                showNotification('检查记录已保存');
+            });
+            
+            // 加载历史记录
+            function loadHistory() {
+                historyList.innerHTML = '';
+                
+                if (history.length === 0) {
+                    historyList.innerHTML = '<div class="history-item">暂无历史记录</div>';
+                    return;
+                }
+                
+                history.forEach(record => {
+                    const item = document.createElement('div');
+                    item.className = 'history-item';
+                    item.innerHTML = `
+                        <div class="history-info">
+                            <span class="history-date">${record.date}</span>
+                            <span class="history-stats">${record.total}人 / ${record.joined}已接 / ${record.missing}未接</span>
+                        </div>
+                        <span class="history-stats">${record.percent}</span>
+                    `;
+                    
+                    // 添加点击事件显示详情
+                    item.addEventListener('click', function() {
+                        showHistoryDetail(record);
+                    });
+                    
+                    historyList.appendChild(item);
+                });
+            }
+            
+            // 清空历史记录
+            clearHistory.addEventListener('click', function() {
+                if (history.length === 0) {
+                    showNotification('没有历史记录可清空', 'error');
+                    return;
+                }
+                
+                if (confirm('确定要清空所有历史记录吗？此操作不可恢复。')) {
+                    history = [];
+                    localStorage.setItem('relayHistory', JSON.stringify(history));
+                    loadHistory();
+                    showNotification('历史记录已清空');
+                }
+            });
+            
+            // 初始化
+            init();
+        });
+    </script>
+</body>
+</html>
